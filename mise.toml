@@ -1,0 +1,8 @@
+[env]
+FDB_VERSION = "{{ get_env(name='FDB_VERSION') }}"
+FDB_NAME = "{{ get_env(name='FDB_NAME', default='fdb') }}"
+FDB_COORDINATOR_ID = "{{ get_env(name='FDB_COORDINATOR_ID', default='fdb') }}"
+FDB_PUBLIC_HOST = "{{ get_env(name='FDB_PUBLIC_HOST') }}"
+FDB_PUBLIC_PORT = "{{ get_env(name='FDB_PUBLIC_PORT') }}"
+FDB_LOG_DIR = "{{ get_env(name='FDB_LOG_DIR', default='/var/log/foundationdb') }}"
+FDB_DATA_DIR = "{{ get_env(name='FDB_DATA_DIR', default='/var/lib/foundationdb') }}"

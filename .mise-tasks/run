@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+# Start a dummy HTTP server to keep the instance alive.
+#
+# Clever Cloud periodically checks the health of the instance by sending a GET request to the root URL.
+# To run arbitrary code on the instance, we need this dummy HTTP server to keep the instance alive.
+socat TCP-LISTEN:8080,crlf,reuseaddr,fork SYSTEM:"echo HTTP/1.1 200 OK; echo Content-Length\: 0;" >/dev/null 2>&1 &
+
+# Create necessary directories
+mkdir -p bin "$(pwd)/${FDB_LOG_DIR}" "$(pwd)/${FDB_DATA_DIR}"
+
+# Download the FoundationDB server binary.
+wget -q "https://github.com/apple/foundationdb/releases/download/${FDB_VERSION}/fdbserver.x86_64" -O bin/fdbserver
+chmod +x bin/fdbserver
+
+# Get the public IP address
+FDB_PUBLIC_IP="$(dig +short "${FDB_PUBLIC_HOST}" | head -n 1)"
+
+# Create cluster file
+echo "${FDB_NAME}:${FDB_COORDINATOR_ID}@${FDB_PUBLIC_IP}:${FDB_PUBLIC_PORT}" > fdb.cluster
+
+# Start a single-process cluster
+exec ./bin/fdbserver \
+    --cluster-file fdb.cluster \
+    --datadir "$(pwd)/${FDB_DATA_DIR}" \
+    --logdir "$(pwd)/${FDB_LOG_DIR}" \
+    --listen-address 0.0.0.0:4040 \
+    --public-address "${FDB_PUBLIC_IP}:${FDB_PUBLIC_PORT}"
